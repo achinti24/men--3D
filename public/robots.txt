@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# El sitemap se activa en Fase 2, cuando existan múltiples restaurantes
+# reales con slugs dinámicos que listar (ver docs/deployment.md).

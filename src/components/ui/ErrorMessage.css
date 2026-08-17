@@ -1,0 +1,16 @@
+.error-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-4);
+  padding: var(--space-8) var(--space-5);
+  color: var(--color-danger);
+}
+
+.error-message__text {
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+  max-width: 34ch;
+  line-height: var(--lh-normal);
+}

@@ -1,0 +1,5 @@
+.public-menu-page__sections {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: 0 var(--space-5) var(--space-9);
+}

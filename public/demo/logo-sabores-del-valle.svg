@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Sabores del Valle">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="75%">
+      <stop offset="0%" stop-color="#242216"/>
+      <stop offset="100%" stop-color="#14140f"/>
+    </radialGradient>
+  </defs>
+  <circle cx="100" cy="100" r="98" fill="url(#bg)"/>
+  <circle cx="100" cy="100" r="90" fill="none" stroke="#C9A15A" stroke-width="1.5"/>
+  <circle cx="100" cy="100" r="82" fill="none" stroke="#C9A15A" stroke-width="0.5" opacity="0.6"/>
+  <text x="100" y="112" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="54" fill="#F5F1E6" font-weight="600">SV</text>
+  <line x1="72" y1="126" x2="128" y2="126" stroke="#C9A15A" stroke-width="1.5"/>
+</svg>
