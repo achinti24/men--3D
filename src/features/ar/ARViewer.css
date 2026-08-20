@@ -1,0 +1,116 @@
+/*
+ * El feed de cámara lo dibuja el propio navegador (dom-overlay de WebXR) —
+ * este contenedor debe quedar transparente y solo aportar la UI encima.
+ */
+.ar-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: transparent;
+  pointer-events: none;
+}
+
+.ar-viewer__banner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: calc(env(safe-area-inset-top, 0px) + var(--space-4)) var(--space-6) var(--space-4);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0) 100%);
+  color: #fff;
+  text-align: center;
+}
+
+.ar-viewer__banner strong {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+}
+
+.ar-viewer__banner span {
+  font-size: var(--fs-sm);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Diagnóstico temporal para probar en dispositivo real sin devtools — ver docs/ar.md. */
+.ar-viewer__debug {
+  font-family: monospace;
+  font-size: var(--fs-xs);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.ar-viewer__close {
+  position: absolute;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + var(--space-6));
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: rgba(184, 87, 74, 0.85);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.ar-viewer__close:hover,
+.ar-viewer__close:focus-visible {
+  background: rgba(184, 87, 74, 1);
+}
+
+/* Último recurso cuando ARCore nunca detecta el plano — ver docs/ar.md. */
+.ar-viewer__manual-place {
+  position: absolute;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + var(--space-6) + 72px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font: inherit;
+  font-size: var(--fs-sm);
+  white-space: nowrap;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.ar-viewer__error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  text-align: center;
+  background: var(--color-bg);
+  color: var(--color-text);
+  pointer-events: auto;
+}
+
+.ar-viewer__error-detail {
+  font-family: monospace;
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+  word-break: break-word;
+  max-width: 90vw;
+}
+
+.ar-viewer__close-text {
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  padding: var(--space-2) var(--space-5);
+  color: var(--color-text);
+  font: inherit;
+  cursor: pointer;
+}
