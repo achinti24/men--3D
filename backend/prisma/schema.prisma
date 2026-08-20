@@ -1,0 +1,218 @@
+// Esquema relacional de Sabores del Valle (Fase 2).
+// Refleja 1:1 el diseño documentado en docs/database.md.
+// Decisión: priceMinor/sizeBytes usan Int (no BigInt) para evitar los
+// problemas de serialización JSON de BigInt — un Int (hasta ~2.147 millones
+// de millones) es más que suficiente para precios en la unidad menor de
+// cualquier moneda soportada y coincide con `MinorUnitAmount = number` en
+// el frontend (src/types/product.types.ts).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  RESTAURANT_OWNER
+  RESTAURANT_STAFF
+}
+
+enum MembershipRole {
+  RESTAURANT_OWNER
+  RESTAURANT_STAFF
+}
+
+enum Currency {
+  COP
+  USD
+  MXN
+}
+
+enum ModelFormat {
+  glb
+  gltf
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  fullName     String   @map("full_name")
+  role         UserRole @default(RESTAURANT_OWNER)
+  /// Incrementado en logout/cambio de contraseña para invalidar refresh tokens emitidos antes.
+  tokenVersion Int      @default(0) @map("token_version")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  memberships RestaurantMember[]
+  auditLogs   AuditLog[]
+
+  @@map("users")
+}
+
+model Restaurant {
+  id             String   @id @default(uuid())
+  slug           String   @unique
+  name           String
+  description    String   @default("")
+  /// NOT NULL con default "": el tipo Restaurant del frontend (src/types/restaurant.types.ts)
+  /// declara estos campos como string obligatorio, nunca null/undefined.
+  logoUrl        String   @default("") @map("logo_url")
+  coverImageUrl  String   @default("") @map("cover_image_url")
+  address        String   @default("")
+  phone          String   @default("")
+  /// { instagram?, facebook?, whatsapp?, website? } — NOT NULL con default "{}"
+  /// por la misma razón que logoUrl/coverImageUrl: el tipo RestaurantSocialLinks
+  /// del frontend nunca se declaró nullable. Campo Prisma "social" (no
+  /// "socialLinks"): el tipo Restaurant del frontend expone `restaurant.social`,
+  /// no `restaurant.socialLinks` — el nombre del campo del modelo es lo que
+  /// llega en la respuesta JSON, así que debe coincidir exactamente.
+  social         Json     @default("{}") @map("social_links")
+  /// Array de { day, opensAt, closesAt, closed? } — NOT NULL con default "[]", mismo motivo.
+  schedule       Json     @default("[]")
+  currency       Currency @default(COP)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  members    RestaurantMember[]
+  categories Category[]
+  products   Product[]
+  qrCodes    QrCode[]
+  auditLogs  AuditLog[]
+
+  @@map("restaurants")
+}
+
+model RestaurantMember {
+  id           String         @id @default(uuid())
+  userId       String         @map("user_id")
+  restaurantId String         @map("restaurant_id")
+  role         MembershipRole
+  createdAt    DateTime       @default(now()) @map("created_at")
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, restaurantId])
+  @@index([restaurantId])
+  @@map("restaurant_members")
+}
+
+model Category {
+  id           String   @id @default(uuid())
+  restaurantId String   @map("restaurant_id")
+  name         String
+  slug         String
+  order        Int      @default(0)
+  icon         String?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  products   Product[]
+
+  @@unique([restaurantId, slug])
+  @@index([restaurantId, order])
+  @@map("categories")
+}
+
+model Product {
+  id           String   @id @default(uuid())
+  /// Redundante con category.restaurantId a propósito: permite validar el
+  /// tenant en un solo WHERE sin JOIN (ver docs/database.md).
+  restaurantId String   @map("restaurant_id")
+  categoryId   String   @map("category_id")
+  name         String
+  description  String   @default("")
+  ingredients  String[]
+  priceMinor   Int      @map("price_minor")
+  available    Boolean  @default(true)
+  featured     Boolean  @default(false)
+  order        Int      @default(0)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  restaurant Restaurant     @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  category   Category       @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  images     ProductImage[]
+  model3D    ProductModel?
+
+  @@index([restaurantId, categoryId, order])
+  @@map("products")
+}
+
+model ProductImage {
+  id           String   @id @default(uuid())
+  productId    String   @map("product_id")
+  url          String
+  thumbnailUrl String   @map("thumbnail_url")
+  alt          String
+  isPrimary    Boolean  @default(false) @map("is_primary")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@map("product_images")
+}
+
+model ProductModel {
+  id                     String      @id @default(uuid())
+  productId              String      @unique @map("product_id")
+  url                    String
+  format                 ModelFormat
+  sizeBytes              Int         @map("size_bytes")
+  posterUrl              String      @map("poster_url")
+  // Diámetro real del plato en metros, declarado a mano por el restaurante.
+  // No todo .glb trae una escala métrica confiable (un escaneo con
+  // Polycam/Scaniverse en modo AR sí; un modelo generado por IA o bajado de
+  // Sketchfab casi nunca) — cuando este campo existe, ARViewer lo usa tal
+  // cual en vez de adivinar a partir del bounding box del modelo.
+  realWorldDiameterMeters Float?      @map("real_world_diameter_meters")
+  // Compañero opcional del .glb para AR Quick Look en iOS (Safari no tiene
+  // WebXR). No es un modelo distinto, es el mismo plato en otro formato —
+  // por eso vive en esta misma fila en vez de una tabla aparte.
+  usdzUrl                String?     @map("usdz_url")
+  usdzSizeBytes          Int?        @map("usdz_size_bytes")
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_models")
+}
+
+model QrCode {
+  id           String   @id @default(uuid())
+  restaurantId String   @map("restaurant_id")
+  targetPath   String   @map("target_path")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@index([restaurantId])
+  @@map("qr_codes")
+}
+
+model AuditLog {
+  id           String   @id @default(uuid())
+  restaurantId String?  @map("restaurant_id")
+  userId       String?  @map("user_id")
+  action       String
+  /// Tipo del recurso afectado, ej. "Product", "Category", "Restaurant" — null para acciones sin recurso (ej. login).
+  resourceType String?  @map("resource_type")
+  resourceId   String?  @map("resource_id")
+  /// Contexto adicional no sensible (nunca contraseñas ni tokens).
+  metadata     Json?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  restaurant Restaurant? @relation(fields: [restaurantId], references: [id], onDelete: SetNull)
+  user       User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([restaurantId, createdAt])
+  @@index([resourceType, resourceId])
+  @@index([userId])
+  @@map("audit_logs")
+}

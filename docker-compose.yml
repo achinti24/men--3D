@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: sabores-del-valle-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sabores
+      POSTGRES_PASSWORD: sabores
+      POSTGRES_DB: sabores_del_valle
+    ports:
+      - '5432:5432'
+    volumes:
+      - sabores_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U sabores -d sabores_del_valle']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  sabores_pgdata:
