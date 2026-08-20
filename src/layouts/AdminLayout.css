@@ -1,0 +1,344 @@
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+}
+
+.admin-layout__sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--color-bg-elevated);
+  border-right: 1px solid var(--color-border);
+  padding: var(--space-5) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.admin-layout__brand {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  color: var(--color-accent);
+}
+
+.admin-layout__nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.admin-layout__nav-link {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-size: var(--fs-sm);
+}
+
+.admin-layout__nav-link:hover {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.admin-layout__nav-link--active {
+  background: var(--color-surface-raised);
+  color: var(--color-accent-strong);
+}
+
+.admin-layout__footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.admin-layout__user {
+  font-size: var(--fs-xs);
+  color: var(--color-text-faint);
+}
+
+.admin-layout__main {
+  flex: 1;
+  padding: var(--space-6);
+  max-width: 1100px;
+  overflow-x: auto;
+}
+
+.admin-page__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-2xl);
+  margin-bottom: var(--space-5);
+}
+
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 480px;
+  margin-bottom: var(--space-6);
+}
+
+.admin-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--fs-sm);
+}
+
+.admin-form__field input,
+.admin-form__field textarea,
+.admin-form__field select {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--fs-md);
+}
+
+.admin-form__field input:focus-visible,
+.admin-form__field textarea:focus-visible,
+.admin-form__field select:focus-visible {
+  outline: 2px solid var(--color-accent-strong);
+  outline-offset: 1px;
+}
+
+.admin-form__checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+
+.admin-table th,
+.admin-table td {
+  text-align: left;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border-soft);
+}
+
+.admin-table__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.admin-table__link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--color-text);
+  font: inherit;
+  text-decoration: underline dotted;
+  cursor: pointer;
+}
+
+.admin-table__link:hover {
+  color: var(--color-accent-strong);
+}
+
+/* Filtros de la lista de productos */
+.admin-product-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+  max-width: 100%;
+}
+
+.admin-product-filters .admin-form__field {
+  min-width: 160px;
+}
+
+/* Editor inline de producto (campos + imágenes + modelo) */
+.admin-product-editor {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  margin: var(--space-2) 0;
+}
+
+.admin-product-editor__subtitle {
+  font-family: var(--font-display);
+  font-size: var(--fs-md);
+  margin: var(--space-4) 0 var(--space-2);
+}
+
+.admin-product-editor__hint {
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-2);
+}
+
+.admin-product-editor__media {
+  max-width: 480px;
+}
+
+.admin-product-editor__gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.admin-product-editor__thumb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  width: 96px;
+}
+
+.admin-product-editor__thumb-image {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+}
+
+/* Branding del restaurante (logo/portada) */
+.admin-branding {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.admin-branding__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: var(--fs-sm);
+}
+
+.admin-branding__logo-preview {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: var(--radius-pill);
+  border: 2px solid var(--color-accent);
+}
+
+.admin-branding__cover-preview {
+  width: 220px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+/* Horario semanal */
+.admin-schedule-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--fs-sm);
+  padding: var(--space-1) 0;
+}
+
+.admin-schedule-row__label {
+  width: 90px;
+  flex-shrink: 0;
+}
+
+.admin-schedule-row input[type='time'] {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
+  color: var(--color-text);
+}
+
+/* Dashboard: resumen + estadísticas */
+.admin-dashboard__restaurant-name {
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  color: var(--color-text);
+}
+
+.admin-dashboard__public-link {
+  display: inline-block;
+  color: var(--color-accent-strong);
+  font-size: var(--fs-sm);
+  margin: var(--space-1) 0 var(--space-5);
+}
+
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--space-3);
+}
+
+.admin-stat-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.admin-stat-card--warn {
+  border-color: var(--color-ember);
+}
+
+.admin-stat-card__value {
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xl);
+  color: var(--color-accent-strong);
+}
+
+.admin-stat-card--warn .admin-stat-card__value {
+  color: var(--color-ember);
+}
+
+.admin-stat-card__label {
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+}
+
+/* Código QR */
+.admin-qr {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+  align-items: flex-start;
+}
+
+.admin-qr__preview {
+  width: 256px;
+  height: 256px;
+  background: #fff;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+}
+
+.admin-qr__info {
+  max-width: 420px;
+}
+
+.admin-qr__url {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--color-accent-strong);
+  word-break: break-all;
+  margin-bottom: var(--space-2);
+}
+
+.admin-qr__hint {
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+  margin-bottom: var(--space-4);
+}

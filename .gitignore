@@ -16,10 +16,18 @@ dist-ssr
 .env
 .env.local
 .env.*.local
+.env.test
 
-# Locally-uploaded/generated assets during development (Phase 3+)
-/uploads
+# Locally-uploaded/generated assets during development (Phase 3+) — the
+# local StorageService writes here; unanchored so it also matches backend/uploads*
+uploads/
+uploads-test/
 *.glb.tmp
+
+# Self-signed dev-only HTTPS certificate (needed to test the camera over the
+# LAN from a phone — getUserMedia requires a secure context). Regenerate
+# locally with `openssl`, never commit private keys.
+/certs/
 
 # Editor directories and files
 .vscode/*

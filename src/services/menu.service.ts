@@ -1,18 +1,15 @@
-import { mockRestaurant } from '../data/mock/restaurant.mock';
-import { mockCategories } from '../data/mock/categories.mock';
-import { mockProducts } from '../data/mock/products.mock';
 import type { Restaurant } from '../types/restaurant.types';
 import type { Category } from '../types/category.types';
 import type { Product } from '../types/product.types';
+import { apiRequest, ApiError } from './apiClient';
 
 /**
- * `menu.service.ts` is the ONLY place in the app that knows the current
- * data source is an in-memory mock. Every hook/component calls through
- * here, never touching `data/mock/*` directly.
+ * `menu.service.ts` is the ONLY place in the app that knows how the menu
+ * data is fetched. Every hook/component calls through here.
  *
- * Phase 2 swaps each function body for a `fetch()` against
- * `${API_BASE_URL}/restaurants/:slug/menu` etc. without changing a single
- * caller — that's the point of the boundary.
+ * Phase 2: this now calls the real API (`GET /api/menu/:slug`) instead of
+ * `data/mock/*` — no caller changed, which was the point of the boundary
+ * documented in docs/architecture.md.
  */
 
 export class MenuNotFoundError extends Error {
@@ -29,11 +26,6 @@ export class ProductNotFoundError extends Error {
   }
 }
 
-/** Simulates realistic network latency so loading states are honestly testable. */
-function withLatency<T>(value: T, ms = 350): Promise<T> {
-  return new Promise((resolve) => setTimeout(() => resolve(value), ms));
-}
-
 export interface RestaurantMenu {
   restaurant: Restaurant;
   categories: Category[];
@@ -41,25 +33,23 @@ export interface RestaurantMenu {
 }
 
 export async function getRestaurantMenuBySlug(slug: string): Promise<RestaurantMenu> {
-  if (slug !== mockRestaurant.slug) {
-    throw new MenuNotFoundError(slug);
+  try {
+    return await apiRequest<RestaurantMenu>(`/menu/${slug}`);
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) {
+      throw new MenuNotFoundError(slug);
+    }
+    throw error;
   }
-
-  const categories = [...mockCategories].sort((a, b) => a.order - b.order);
-  const products = [...mockProducts].sort((a, b) => a.order - b.order);
-
-  return withLatency({ restaurant: mockRestaurant, categories, products });
 }
 
 export async function getProductById(slug: string, productId: string): Promise<{ product: Product; restaurant: Restaurant }> {
-  if (slug !== mockRestaurant.slug) {
-    throw new MenuNotFoundError(slug);
+  try {
+    return await apiRequest<{ product: Product; restaurant: Restaurant }>(`/menu/${slug}/products/${productId}`);
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) {
+      throw new ProductNotFoundError(productId);
+    }
+    throw error;
   }
-
-  const product = mockProducts.find((p) => p.id === productId);
-  if (!product) {
-    throw new ProductNotFoundError(productId);
-  }
-
-  return withLatency({ product, restaurant: mockRestaurant });
 }
