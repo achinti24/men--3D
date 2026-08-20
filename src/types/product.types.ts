@@ -26,6 +26,19 @@ export interface ProductModel {
   sizeBytes: number;
   /** Poster image shown while the 3D model streams in. */
   posterUrl: string;
+  /**
+   * Diámetro real del plato en metros, declarado a mano por el restaurante.
+   * No todo .glb trae una escala métrica confiable — cuando existe, ARViewer
+   * lo usa directamente en vez de adivinar a partir del bounding box.
+   */
+  realWorldDiameterMeters: number | null;
+  /**
+   * Compañero opcional del .glb para AR Quick Look en iOS (Safari no tiene
+   * WebXR) — mismo plato, otro formato. Sin este archivo, el botón de AR no
+   * aparece en iPhone (nunca se ofrece algo que fallaría al abrirse).
+   */
+  usdzUrl: string | null;
+  usdzSizeBytes: number | null;
 }
 
 export interface Product {

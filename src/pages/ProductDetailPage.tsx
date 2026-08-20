@@ -1,18 +1,23 @@
+import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { PublicMenuLayout } from '../layouts/PublicMenuLayout';
 import { useProduct } from '../hooks/useProduct';
 import { ProductGallery } from '../components/product/ProductGallery';
 import { IngredientsList } from '../components/product/IngredientsList';
-import { ModelViewerPlaceholder } from '../components/product/ModelViewerPlaceholder';
+import { ModelViewer } from '../components/product/ModelViewer';
 import { Badge } from '../components/ui/Badge';
+import { Button } from '../components/ui/Button';
 import { Skeleton } from '../components/ui/Skeleton';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
+import { CameraView } from '../features/camera/CameraView';
+import { ARButton } from '../features/ar/ARButton';
 import { formatCurrency } from '../utils/formatCurrency';
 import './ProductDetailPage.css';
 
 export function ProductDetailPage() {
   const { restaurantSlug, productId } = useParams<{ restaurantSlug: string; productId: string }>();
   const state = useProduct(restaurantSlug, productId);
+  const [cameraOpen, setCameraOpen] = useState(false);
 
   return (
     <PublicMenuLayout>
@@ -53,12 +58,23 @@ export function ProductDetailPage() {
 
               <p className="product-detail-page__description">{state.product.description}</p>
 
-              <ModelViewerPlaceholder hasModel={Boolean(state.product.model3D)} />
+              {state.product.model3D && (
+                <>
+                  <ARButton model={state.product.model3D} productName={state.product.name} />
+                  <ModelViewer model={state.product.model3D} productName={state.product.name} />
+                </>
+              )}
+
+              <Button variant="outline" onClick={() => setCameraOpen(true)}>
+                Ver con cámara
+              </Button>
 
               <IngredientsList ingredients={state.product.ingredients} />
             </div>
           </>
         )}
+
+        {cameraOpen && <CameraView onClose={() => setCameraOpen(false)} />}
       </div>
     </PublicMenuLayout>
   );
