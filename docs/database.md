@@ -1,6 +1,6 @@
 # Base de datos
 
-Diseño relacional propuesto para Fase 2. No implementado todavía en este repositorio (Fase 1 usa datos en memoria) — este documento fija el contrato que `services/*.ts` asumirá al conectar el backend real, y ya coincide con los tipos en `src/types/`.
+**Implementado en Fase 2.** Esquema real en `backend/prisma/schema.prisma`, aplicado vía migraciones de Prisma (`backend/prisma/migrations/`). Este documento describe el diseño lógico; el esquema Prisma es la fuente de verdad exacta (tipos, `@@map` a `snake_case`, índices, constraints). Coincide con los tipos de `src/types/` en el frontend.
 
 ## Entidades y relaciones
 
@@ -28,9 +28,9 @@ User ──< RestaurantMember >── Restaurant ──< Category ──< Produc
 |---|---|---|
 | id | uuid PK | |
 | slug | text UNIQUE NOT NULL | índice único, usado en la URL pública |
-| name, description | text | |
-| logo_url, cover_image_url | text | apuntan a Storage, nunca al filesystem local |
-| address, phone | text | |
+| name, description | text NOT NULL, default `''` | |
+| logo_url, cover_image_url | text NOT NULL, default `''` | apuntan a Storage, nunca al filesystem local — NOT NULL (no nullable) porque el tipo `Restaurant` del frontend los declara como `string` obligatorio, nunca `null` |
+| address, phone | text NOT NULL, default `''` | |
 | social_links | jsonb | `{ instagram, facebook, whatsapp, website }` |
 | schedule | jsonb | array de `{ day, opensAt, closesAt, closed }` |
 | currency | enum(COP, USD, MXN) | |
@@ -61,7 +61,7 @@ User ──< RestaurantMember >── Restaurant ──< Category ──< Produc
 | category_id | uuid FK → categories NOT NULL | |
 | name, description | text | |
 | ingredients | text[] | |
-| price_minor | bigint NOT NULL | entero en unidad menor de la moneda — **nunca** `numeric`/`float` para evitar redondeos |
+| price_minor | integer NOT NULL | entero en unidad menor de la moneda — **nunca** `numeric`/`float` para evitar redondeos (ver nota sobre `Int` vs `bigint` más abajo) |
 | available, featured | boolean | |
 | order | int | |
 | created_at, updated_at | timestamptz | |
@@ -113,3 +113,12 @@ User ──< RestaurantMember >── Restaurant ──< Category ──< Produc
 ## Por qué `price_minor` es entero
 
 Ver `src/types/product.types.ts` y `src/utils/formatCurrency.ts` en el frontend: el dinero nunca se representa como `float` en ningún punto del sistema, de la base de datos a la UI. Sumar o comparar precios en punto flotante puede producir errores de redondeo acumulados — con enteros, la aritmética es exacta.
+
+**`integer` (4 bytes), no `bigint`.** El diseño original de este documento proponía `bigint`; se implementó como `integer` (Prisma `Int`) porque (a) su rango — hasta ~2.147 millones de millones en la unidad menor — es más que suficiente para cualquier precio o tamaño de archivo realista, y (b) `bigint` se serializa como JavaScript `BigInt`, que `JSON.stringify` no soporta de forma nativa y habría requerido conversión manual en cada respuesta de la API. `Int` coincide exactamente con `MinorUnitAmount = number` en el frontend sin esa fricción. Lo mismo aplica a `product_models.size_bytes`.
+
+## Qué implementa cada tabla hoy vs. queda pendiente
+
+- Todas las tablas de este documento existen en `backend/prisma/schema.prisma` y están migradas.
+- `audit_logs` existe en el esquema pero **todavía no se escribe** desde ningún endpoint — poblarla en cada mutación relevante (crear/editar/borrar categoría o producto, cambios de rol) es trabajo de Fase 7 (ver `docs/security.md`).
+- `product_images` y `product_models` existen en el esquema pero no tienen endpoints de escritura todavía — llegan con la subida de archivos real en Fase 3 (`StorageService`).
+- `qr_codes` existe en el esquema; la generación/descarga de QR es Fase 6.
