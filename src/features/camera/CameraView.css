@@ -1,0 +1,118 @@
+.camera-view {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #000;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.camera-view__frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.camera-view__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #000;
+}
+
+.camera-view__status {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  text-align: center;
+  color: var(--color-text);
+  font-size: var(--fs-md);
+}
+
+.camera-view__status--error {
+  color: var(--color-text);
+}
+
+.camera-view__disclaimer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: calc(env(safe-area-inset-top, 0px) + var(--space-4)) var(--space-5) var(--space-4);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0) 100%);
+  color: #fff;
+}
+
+.camera-view__disclaimer strong {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+}
+
+.camera-view__disclaimer span {
+  font-size: var(--fs-sm);
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 32rem;
+}
+
+.camera-view__controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  padding: var(--space-5) var(--space-5) calc(env(safe-area-inset-bottom, 0px) + var(--space-6));
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0) 100%);
+}
+
+.camera-view__button {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(20, 20, 15, 0.55);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-standard);
+}
+
+.camera-view__button:hover,
+.camera-view__button:focus-visible {
+  background: rgba(20, 20, 15, 0.8);
+}
+
+.camera-view__button:focus-visible {
+  outline: 2px solid var(--color-accent-strong);
+  outline-offset: 2px;
+}
+
+.camera-view__button--close {
+  width: 64px;
+  height: 64px;
+  background: rgba(184, 87, 74, 0.85);
+  border-color: transparent;
+}
+
+.camera-view__button--close:hover,
+.camera-view__button--close:focus-visible {
+  background: rgba(184, 87, 74, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .camera-view__button {
+    transition: none;
+  }
+}
